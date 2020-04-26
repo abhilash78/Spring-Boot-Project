@@ -8,15 +8,22 @@ created on 22-Apr-2020 6:09:20 pm
 package com.photoshop.photoapp.service.Impl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.photoshop.photoapp.ui.model.response.ErrorMessages;
+import com.photoshop.photoapp.ui.model.response.UserRest;
+import com.photoshop.photoapp.app.ws.exceptions.UserServiceException;
 import com.photoshop.photoapp.io.entity.UserEntity;
 import com.photoshop.photoapp.io.repository.UserRepository;
 import com.photoshop.photoapp.service.UserService;
@@ -99,7 +106,8 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		
 		UserEntity user = userRepository.findByUserId(id);
-		
+		if(user == null )throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+
 		UserDto userDto = new UserDto();
 		
 		if(user==null) throw new UsernameNotFoundException(id);
@@ -108,5 +116,49 @@ public class UserServiceImpl implements UserService {
 		
 		return userDto;
 	}
+
+	@Override
+	public UserDto updateUser(String userId,UserDto userDto) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		if (userEntity == null)
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		
+		userEntity.setFirstName(userDto.getFirstName());
+		userEntity.setLastName(userDto.getLastName());
+		
+		UserEntity updatedUserDetails=userRepository.save(userEntity);
+
+		UserDto returnValue = new UserDto();
+		BeanUtils.copyProperties(updatedUserDetails, returnValue);
+
+				return returnValue;
+
+			}
+	
+	@Override
+	public void deleteUser(String userId) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		if (userEntity == null)
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		userRepository.delete(userEntity);;
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+List<UserDto> retrunValue=new ArrayList<UserDto>();
+Pageable pageableRequest=PageRequest.of(page,limit);
+   Page<UserEntity> userPage=  userRepository.findAll(pageableRequest);
+   List<UserEntity> users=userPage.toList();
+   
+   for (UserEntity userEntity : users) {
+		UserDto userDto = new UserDto();
+		BeanUtils.copyProperties(userEntity, userDto);
+		retrunValue.add(userDto);
+	}
+
+
+		return retrunValue;
+	}
+
 
 }

@@ -7,6 +7,8 @@ created on 22-Apr-2020 5:54:05 pm
  */
 package com.photoshop.photoapp.service;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.photoshop.photoapp.shared.dto.UserDto;
@@ -25,5 +27,11 @@ public interface UserService extends UserDetailsService {
 	 * @author Avinash Kumar
 	  created on 24-Apr-2020 6:17:45 pm
 	 */
-	UserDto getUserById(String id);	
+	UserDto getUserById(String id);
+
+	UserDto updateUser(String userId, UserDto userDto);
+
+	void deleteUser(String id);
+
+	List<UserDto> getUsers(int page, int limit);	
 }

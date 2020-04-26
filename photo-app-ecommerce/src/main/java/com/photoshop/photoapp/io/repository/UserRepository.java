@@ -8,13 +8,14 @@ created on 22-Apr-2020 6:50:33 pm
 package com.photoshop.photoapp.io.repository;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.photoshop.photoapp.io.entity.UserEntity;
 
 
 @Repository
-public interface UserRepository extends CrudRepository<UserEntity, Long> {
+public interface UserRepository extends PagingAndSortingRepository<UserEntity, Long> {
 	UserEntity findByEmail(String email);
 
 	/**
